@@ -27,6 +27,7 @@ export default function PropertyCard({ property, index }) {
                 <motion.img
                     src={property.image}
                     alt={property.title}
+                    loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
 

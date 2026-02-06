@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 import { MapPin, Bed, ArrowRight, Coins, Bath, Plane, Train, Car, Maximize, Heart, ArrowLeft, Phone, Mail, Share2, Play, X, ChevronRight, ChevronLeft, Wifi, Shield, Utensils, Trees } from "lucide-react";
 
 import Navbar from '../components/Navbar';
@@ -99,8 +100,36 @@ const PropertyDetails = () => {
     // Mock images array for the gallery
     const images = [property.image, property.image, property.image, property.image]; // In real app, these would be different
 
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "RealEstateListing",
+        "name": property.title,
+        "image": [images[0], images[1], images[2]],
+        "description": property.description,
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "USD",
+            "price": property.price.replace(/[^0-9.]/g, '')
+        },
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": property.location,
+            "addressLocality": "Los Angeles", // Mock data inference
+            "addressRegion": "CA",
+            "addressCountry": "US"
+        }
+    };
+
     return (
         <div className="bg-white min-h-screen selection:bg-luxury-gold selection:text-white">
+            <Helmet>
+                <title>{property.title} | UrbanPlot Luxury Real Estate</title>
+                <meta name="description" content={`Discover ${property.title} in ${property.location}. ${property.beds} Beds, ${property.baths} Baths. ${(property.description || "").substring(0, 150)}...`} />
+                <link rel="canonical" href={`https://urbanplot.com/property/${property.id}`} />
+                <script type="application/ld+json">
+                    {JSON.stringify(schemaData)}
+                </script>
+            </Helmet>
             <Navbar onLoginClick={() => setShowAuth(true)} variant="solid" enableIntro={false} />
 
             <main className="pt-[72px] min-h-screen bg-white">
@@ -301,7 +330,7 @@ const PropertyDetails = () => {
                                                 activeImage === i ? "border-luxury-charcoal opacity-100" : "border-transparent opacity-60 hover:opacity-100"
                                             )}
                                         >
-                                            <img src={img} alt={`View ${i}`} className="w-full h-full object-cover" />
+                                            <img src={img} alt={`View ${i}`} loading="lazy" className="w-full h-full object-cover" />
                                         </button>
                                     ))}
                                     {/* Video Thumbnail Placeholder */}

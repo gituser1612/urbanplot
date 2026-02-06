@@ -61,8 +61,8 @@ export default function Navbar({ onLoginClick, variant = 'transparent' }) {
             >
                 {/* LEFT: LOGO */}
                 <div className="flex items-center z-50">
-                    <a
-                        href="#"
+                    <Link
+                        to="/"
                         className="group flex flex-col justify-center"
                     >
                         <span className={clsx(
@@ -71,7 +71,7 @@ export default function Navbar({ onLoginClick, variant = 'transparent' }) {
                         )}>
                             UrbanPlot
                         </span>
-                    </a>
+                    </Link>
                 </div>
 
                 {/* CENTER: NAV LINKS (Desktop) */}
@@ -136,65 +136,85 @@ export default function Navbar({ onLoginClick, variant = 'transparent' }) {
                 </div>
             </motion.nav>
 
-            {/* MOBILE MENU OVERLAY */}
+            {/* MOBILE MENU DRAWER */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
-                    <motion.div
-                        className="fixed inset-0 z-[60] bg-[#0D0D0D]/98 backdrop-blur-[30px] flex flex-col justify-center items-center"
-                        initial={{ x: '100%', opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: '100%', opacity: 0 }}
-                        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-                    >
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] hover:scale-110 transition-all duration-300"
-                        >
-                            <X strokeWidth={1.5} size={32} />
-                        </button>
-
-                        {/* Mobile Links */}
-                        <nav className="flex flex-col items-center gap-10">
-                            {mobileLinks.map((link, i) => (
-                                <motion.a
-                                    key={link.name}
-                                    href={link.href}
-                                    className="font-serif text-[#F5F5F0] text-4xl font-light tracking-wider hover:text-[#d4a574] hover:scale-105 transition-all duration-300"
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    exit={{ y: 10, opacity: 0 }}
-                                    transition={{ delay: 0.1 + (i * 0.1), duration: 0.5 }}
-                                >
-                                    {link.name}
-                                </motion.a>
-                            ))}
-                        </nav>
-
-                        {/* Divider */}
+                    <>
+                        {/* Backdrop */}
                         <motion.div
-                            className="w-20 h-[1px] bg-[#F5F5F0]/15 my-12"
-                            initial={{ width: 0 }}
-                            animate={{ width: 80 }}
-                            transition={{ delay: 0.5, duration: 0.8 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
                         />
 
-                        {/* Secondary Links */}
-                        <div className="flex flex-col items-center gap-6">
-                            {['My Account', 'Favorites', 'Contact'].map((item, i) => (
-                                <motion.a
-                                    key={item}
-                                    href="#"
-                                    className="font-sans text-[12px] uppercase tracking-[0.2em] text-[#F5F5F0]/50 hover:text-[#F5F5F0] transition-colors"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.6 + (i * 0.1) }}
+                        {/* Drawer */}
+                        <motion.div
+                            className="fixed top-0 right-0 bottom-0 z-[70] w-full max-w-sm bg-[#0D0D0D] border-l border-[#F5F5F0]/10 shadow-2xl flex flex-col"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                        >
+                            {/* Drawer Header */}
+                            <div className="flex items-center justify-between p-8 border-b border-[#F5F5F0]/5">
+                                <span className="font-['Montserrat'] font-light tracking-[0.2em] uppercase text-lg text-[#F5F5F0]">
+                                    Menu
+                                </span>
+                                <button
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="w-10 h-10 flex items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] transition-colors rounded-full hover:bg-white/5"
                                 >
-                                    {item}
-                                </motion.a>
-                            ))}
-                        </div>
-                    </motion.div>
+                                    <X strokeWidth={1.5} size={24} />
+                                </button>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <div className="flex-1 overflow-y-auto py-8 px-8 flex flex-col justify-center">
+                                <nav className="flex flex-col gap-6">
+                                    {mobileLinks.map((link, i) => (
+                                        <motion.a
+                                            key={link.name}
+                                            href={link.href}
+                                            className="font-serif text-3xl md:text-4xl text-[#F5F5F0] hover:text-[#d4a574] transition-colors flex items-center gap-4 group"
+                                            initial={{ x: 20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.1 + (i * 0.05) }}
+                                        >
+                                            <span className="w-0 group-hover:w-8 h-[1px] bg-[#d4a574] transition-all duration-300" />
+                                            {link.name}
+                                        </motion.a>
+                                    ))}
+                                </nav>
+
+                                <div className="w-full h-[1px] bg-[#F5F5F0]/10 my-10" />
+
+                                <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                                    {['My Account', 'Favorites', 'Contact', 'Settings'].map((item, i) => (
+                                        <motion.a
+                                            key={item}
+                                            href="#"
+                                            className="font-sans text-xs uppercase tracking-[0.2em] text-[#F5F5F0]/50 hover:text-[#d4a574] transition-colors flex items-center gap-2"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 0.4 + (i * 0.05) }}
+                                        >
+                                            <div className="w-1 h-1 rounded-full bg-[#d4a574]" />
+                                            {item}
+                                        </motion.a>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Drawer Footer */}
+                            <div className="p-8 border-t border-[#F5F5F0]/5">
+                                <button className="w-full py-4 border border-[#d4a574]/30 text-[#d4a574] font-sans text-xs uppercase tracking-[0.2em] hover:bg-[#d4a574] hover:text-[#0D0D0D] transition-all duration-300">
+                                    List Your Property
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
         </>

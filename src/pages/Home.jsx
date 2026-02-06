@@ -83,7 +83,7 @@ export default function Home() {
 
                 <div className="space-y-20 mt-16 text-luxury-charcoal">
                     {/* SECTION 1: New Listed */}
-                    <section>
+                    <section id="featured-listings">
                         <SectionHeader title="Newly Listed" />
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                             {newListed.slice(0, visibleNewListed).map((property, index) => (
@@ -150,6 +150,45 @@ export default function Home() {
                     </section>
                 </div>
             </main>
+
+            {/* Bottom CTA Section */}
+            <section className="py-32 bg-[#0F172A] relative overflow-hidden">
+                {/* Background Image with Overlay */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src={luxuryVilla2}
+                        alt="Luxury Home"
+                        className="w-full h-full object-cover opacity-20"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/80 to-[#0F172A]/60" />
+                </div>
+
+                <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+                    <h2 className="font-display font-medium text-4xl md:text-5xl text-white mb-6 tracking-wide">
+                        Ready to Find Your Dream Home?
+                    </h2>
+                    <p className="font-sans text-gray-300 text-lg md:text-xl font-light mb-10 max-w-2xl mx-auto leading-relaxed">
+                        Join our exclusive network of homeowners and investors. Let our expert agents guide you to your perfect property.
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                        <button
+                            onClick={() => {
+                                const element = document.getElementById('featured-listings');
+                                element?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="px-10 py-4 bg-luxury-gold text-luxury-charcoal font-bold uppercase tracking-widest text-sm hover:bg-white transition-all duration-300 min-w-[200px]"
+                        >
+                            Browse Listings
+                        </button>
+                        <a
+                            href="mailto:concierge@urbanplot.com"
+                            className="px-10 py-4 border border-white/30 text-white font-bold uppercase tracking-widest text-sm hover:bg-white hover:text-luxury-charcoal transition-all duration-300 min-w-[200px]"
+                        >
+                            Contact Agent
+                        </a>
+                    </div>
+                </div>
+            </section>
 
             <Testimonials />
             <Footer />

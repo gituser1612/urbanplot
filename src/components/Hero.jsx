@@ -91,8 +91,14 @@ export default function Hero() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                        <button className="h-14 px-10 rounded-full bg-luxury-gold text-luxury-charcoal font-bold tracking-widest text-sm uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-xl flex items-center gap-2">
-                            Start Creating
+                        <button
+                            onClick={() => {
+                                const element = document.getElementById('featured-listings');
+                                element?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="h-14 px-10 rounded-full bg-luxury-gold text-luxury-charcoal font-bold tracking-widest text-sm uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-xl flex items-center gap-2"
+                        >
+                            Browse Properties
                             <ArrowRight size={16} />
                         </button>
                         <button className="h-14 px-10 rounded-full border border-white/30 bg-black/20 backdrop-blur-md text-white font-bold tracking-widest text-sm uppercase hover:bg-white hover:text-black transition-all duration-300">
