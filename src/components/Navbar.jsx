@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
 import { Search, Heart, User, Menu, X } from 'lucide-react';
 import clsx from 'clsx';
+import { useWishlist } from '../contexts/WishlistContext';
 
-export default function Navbar({ onLoginClick }) {
+export default function Navbar({ onLoginClick, variant = 'transparent' }) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { scrollY } = useScroll();
+    const { wishlist } = useWishlist();
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         setIsScrolled(latest > 50);
@@ -53,20 +56,14 @@ export default function Navbar({ onLoginClick }) {
             <motion.nav
                 className={clsx(
                     "fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center justify-between px-6 md:px-16",
-                    isScrolled ? "h-[72px] bg-[#0D0D0D]/85 backdrop-blur-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.6)] border-b border-[#F5F5F0]/10" : "h-[88px] bg-transparent"
+                    (isScrolled || variant === 'dark' || variant === 'solid') ? "h-[72px] bg-[#0D0D0D]/85 backdrop-blur-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.6)] border-b border-[#F5F5F0]/10" : "h-[88px] bg-transparent"
                 )}
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 1, delay: 3.8, ease: [0.22, 1, 0.36, 1] }}
             >
                 {/* LEFT: LOGO */}
                 <div className="flex items-center z-50">
-                    <motion.a
+                    <a
                         href="#"
                         className="group flex flex-col justify-center"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 0.95, y: 0 }}
-                        transition={{ duration: 1, delay: 3.8 }}
                     >
                         <span className={clsx(
                             "font-['Montserrat'] font-light tracking-[0.3em] uppercase text-xl transition-all duration-500 group-hover:text-[#d4a574] group-hover:tracking-[0.4em]",
@@ -74,81 +71,68 @@ export default function Navbar({ onLoginClick }) {
                         )}>
                             UrbanPlot
                         </span>
-                    </motion.a>
+                    </a>
                 </div>
 
                 {/* CENTER: NAV LINKS (Desktop) */}
                 <div className="hidden lg:flex items-center gap-14">
                     {navLinks.map((link, i) => (
-                        <motion.a
+                        <a
                             key={link.name}
                             href={link.href}
                             className="relative text-[11px] uppercase tracking-[0.27em] text-[rgba(245,245,240,0.6)] hover:text-[#F5F5F0] transition-colors duration-400 font-light font-['Montserrat'] group py-2"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 3.9 + (i * 0.1) }}
                         >
                             {link.name}
                             <span className="absolute bottom-0 left-0 w-full h-[1px] bg-[#d4a574] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-350 ease-[cubic-bezier(0.4,0,0.2,1)] origin-left mt-2" style={{ top: 'calc(100% + 2px)' }} />
-                        </motion.a>
+                        </a>
                     ))}
                 </div>
 
                 {/* RIGHT: ACTION BUTTONS */}
                 <div className="flex items-center gap-6">
                     {/* Search Icon */}
-                    <motion.button
+                    <button
                         className="w-10 h-10 rounded-full flex items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] hover:bg-white/5 hover:border hover:border-[#d4a574]/30 hover:scale-105 active:scale-95 transition-all duration-350"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 4.2 }}
                     >
                         <Search strokeWidth={1.5} size={20} />
-                    </motion.button>
+                    </button>
 
                     {/* Heart Icon (Desktop) */}
-                    <motion.button
-                        className="hidden md:flex w-10 h-10 rounded-full items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] hover:bg-white/5 hover:border hover:border-[#d4a574]/30 hover:scale-105 active:scale-95 transition-all duration-350"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 4.25 }}
-                    >
-                        <Heart strokeWidth={1.5} size={20} />
-                    </motion.button>
+                    <Link to="/wishlist" className="hidden md:flex relative group/wishlist">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] hover:bg-white/5 hover:border hover:border-[#d4a574]/30 transition-all duration-350">
+                            <Heart strokeWidth={1.5} size={20} />
+                        </div>
+                        {wishlist.length > 0 && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#d4a574] text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-[#0D0D0D]">
+                                {wishlist.length}
+                            </span>
+                        )}
+                    </Link>
 
                     {/* User Icon (Desktop) */}
-                    <motion.button
+                    <button
                         onClick={onLoginClick}
                         className="hidden md:flex w-10 h-10 rounded-full items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] hover:bg-white/5 hover:border hover:border-[#d4a574]/30 hover:scale-105 active:scale-95 transition-all duration-350"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 4.3 }}
                         aria-label="Account"
                     >
                         <User strokeWidth={1.5} size={20} />
-                    </motion.button>
+                    </button>
 
                     {/* List Property CTA (Desktop) */}
-                    <motion.button
+                    <button
                         className="hidden lg:block px-8 h-[44px] rounded-full bg-gradient-to-br from-[#d4a574] to-[#c9a869] text-[#0D0D0D] font-medium text-[11px] uppercase tracking-[2px] shadow-[0_6px_20px_rgba(212,165,116,0.25)] border border-[#d4a574]/40 hover:brightness-110 hover:-translate-y-[2px] hover:shadow-[0_8px_28px_rgba(212,165,116,0.35)] active:translate-y-0 transition-all duration-400 group overflow-hidden relative"
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 4.4, type: "spring", stiffness: 200, damping: 20 }}
                     >
                         <span className="relative z-10 group-hover:tracking-[2.5px] transition-all duration-400">List Property</span>
                         <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500" />
-                    </motion.button>
+                    </button>
 
                     {/* Mobile Menu Toggle */}
-                    <motion.button
+                    <button
                         onClick={() => setIsMobileMenuOpen(true)}
                         className="lg:hidden w-10 h-10 flex items-center justify-center text-[rgba(245,245,240,0.7)] hover:text-[#d4a574] transition-colors"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 4.2 }}
                     >
                         <Menu strokeWidth={1.5} size={24} />
-                    </motion.button>
+                    </button>
                 </div>
             </motion.nav>
 

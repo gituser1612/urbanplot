@@ -1,0 +1,164 @@
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Hero from '../components/Hero';
+import SearchBar from '../components/SearchBar';
+import PropertyCard from '../components/PropertyCard';
+import Testimonials from '../components/Testimonials';
+import AuthPage from '../components/AuthPage';
+
+import luxuryVilla1 from '../assets/images/luxury-villa-1.jpg';
+import luxuryVilla2 from '../assets/images/luxury-villa-2.jpg';
+import luxuryVilla3 from '../assets/images/luxury-villa-3.jpg';
+import luxuryVilla4 from '../assets/images/luxury-villa-4.jpg';
+import luxuryVilla5 from '../assets/images/luxury-villa-5.jpg';
+import urbanLuxe from '../assets/images/urban-luxe.jpg';
+import golfCourse from '../assets/images/golf-course.jpg';
+import ranch from '../assets/images/ranch.jpg';
+
+const SectionHeader = ({ title }) => (
+    <div className="flex items-end justify-between mb-8">
+        <div>
+            <h2 className="font-['Montserrat'] font-bold text-3xl md:text-4xl text-luxury-charcoal mb-2">{title}</h2>
+            <div className="h-1 w-16 bg-luxury-gold" />
+        </div>
+        <button className="text-sm font-medium uppercase tracking-widest text-luxury-gold hover:text-luxury-charcoal transition-colors">
+            View All
+        </button>
+    </div>
+);
+
+export default function Home() {
+    const [showAuth, setShowAuth] = useState(false);
+    const [visibleNewListed, setVisibleNewListed] = useState(8);
+    const [visibleNearby, setVisibleNearby] = useState(8);
+
+    const propertyImages = [luxuryVilla1, luxuryVilla2, luxuryVilla3, luxuryVilla4, luxuryVilla5];
+
+    const newListed = Array.from({ length: 20 }).map((_, i) => ({
+        id: `new-${i}`,
+        image: propertyImages[i % 5],
+        price: `$${(1200000 + i * 50000).toLocaleString()}`,
+        title: `Luxury Villa ${i + 1}`,
+        location: 'Beverly Hills, CA',
+        beds: 4 + (i % 3),
+        baths: 3 + (i % 2),
+        sqft: 2500 + i * 100,
+        featured: i % 3 === 0
+    }));
+
+    const nearbyProperties = Array.from({ length: 20 }).map((_, i) => ({
+        id: `nearby-${i}`,
+        image: propertyImages[(i + 2) % 5], // Offset to look different
+        price: `$${(850000 + i * 25000).toLocaleString()}`,
+        title: `Modern Apartment ${i + 1}`,
+        location: 'West Hollywood, CA',
+        beds: 2 + (i % 2),
+        baths: 2,
+        sqft: 1200 + i * 50
+    }));
+
+    const lifestyleTypes = [
+        { name: 'Waterfront', count: 128, image: luxuryVilla2 },
+        { name: 'Mountain View', count: 64, image: luxuryVilla1 },
+        { name: 'Urban Luxe', count: 256, image: urbanLuxe },
+        { name: 'Eco-Friendly', count: 42, image: luxuryVilla3 },
+        { name: 'Historic', count: 18, image: luxuryVilla5 },
+        { name: 'Minimalist', count: 95, image: luxuryVilla4 },
+        { name: 'Golf Course', count: 33, image: golfCourse },
+        { name: 'Ranch', count: 12, image: ranch },
+    ];
+
+
+    return (
+        <div className="bg-luxury-cream min-h-screen selection:bg-luxury-gold selection:text-white pb-0">
+            <Navbar onLoginClick={() => setShowAuth(true)} variant="transparent" enableIntro={true} />
+            <Hero />
+
+            {/* Main Content Area */}
+            <main className="max-w-[1600px] mx-auto px-4 md:px-8 pb-24 relative z-10 w-full">
+                {/* Horizontal Search Bar - Overlapping Hero/Content */}
+                <SearchBar />
+
+                <div className="space-y-20 mt-16 text-luxury-charcoal">
+                    {/* SECTION 1: New Listed */}
+                    <section>
+                        <SectionHeader title="Newly Listed" />
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                            {newListed.slice(0, visibleNewListed).map((property, index) => (
+                                <PropertyCard key={property.id} property={property} index={index} />
+                            ))}
+                        </div>
+                        {visibleNewListed < newListed.length && (
+                            <div className="flex justify-center mt-12">
+                                <button
+                                    onClick={() => setVisibleNewListed(prev => Math.min(prev + 8, newListed.length))}
+                                    className="px-8 py-3 bg-white border border-luxury-gold text-luxury-charcoal font-medium uppercase tracking-wider hover:bg-luxury-gold hover:text-white transition-all duration-300 shadow-sm"
+                                >
+                                    View More Properties
+                                </button>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* SECTION 2: Nearby */}
+                    <section>
+                        <SectionHeader title="Properties Nearby" />
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                            {nearbyProperties.slice(0, visibleNearby).map((property, index) => (
+                                <PropertyCard key={property.id} property={property} index={index} />
+                            ))}
+                        </div>
+                        {visibleNearby < nearbyProperties.length && (
+                            <div className="flex justify-center mt-12">
+                                <button
+                                    onClick={() => setVisibleNearby(prev => Math.min(prev + 8, nearbyProperties.length))}
+                                    className="px-8 py-3 bg-white border border-luxury-gold text-luxury-charcoal font-medium uppercase tracking-wider hover:bg-luxury-gold hover:text-white transition-all duration-300 shadow-sm"
+                                >
+                                    View More Nearby
+                                </button>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* SECTION 3: Browse by Type */}
+                    <section>
+                        <SectionHeader title="Browse by Lifestyle" />
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
+                            {lifestyleTypes.map((type, index) => (
+                                <motion.div
+                                    key={index}
+                                    className="relative group cursor-pointer overflow-hidden rounded-xl h-48 md:h-64 shadow-md"
+                                    whileHover={{ y: -5 }}
+                                >
+                                    <div className="absolute inset-0">
+                                        <img
+                                            src={type.image}
+                                            alt={type.name}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500" />
+                                    </div>
+                                    <div className="absolute bottom-4 left-4 text-white">
+                                        <h3 className="font-serif text-xl font-medium mb-1">{type.name}</h3>
+                                        <p className="font-sans text-xs opacity-80 uppercase tracking-wider">{type.count} Listings</p>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </section>
+                </div>
+            </main>
+
+            <Testimonials />
+            <Footer />
+
+            {/* Auth Modal */}
+            <AnimatePresence>
+                {showAuth && <AuthPage onClose={() => setShowAuth(false)} />}
+            </AnimatePresence>
+        </div>
+    );
+}
+

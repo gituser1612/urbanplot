@@ -242,38 +242,40 @@ export default function AuthPage({ onClose }) {
         >
 
             {/* --- LEFT PANEL: Form --- */}
-            <div className="w-full lg:w-[45%] relative flex flex-col justify-center items-center p-8 bg-luxury-ivory">
+            <div className="w-full lg:w-[45%] relative flex flex-col p-8 bg-luxury-ivory h-full overflow-y-auto">
 
                 {/* Background Texture */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
 
-                {/* Logo */}
-                <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3, duration: 0.8 }}
-                    className="absolute top-8 lg:top-12 left-8 lg:left-12 flex items-center gap-3 z-20"
-                >
-                    <div className="w-8 h-8 border border-luxury-gold transform rotate-45 flex items-center justify-center">
-                        <div className="w-4 h-4 bg-luxury-gold/50" />
-                    </div>
-                    <span className="font-serif font-bold text-xl tracking-widest uppercase text-luxury-charcoal">UrbanPlot</span>
-                </motion.div>
+                {/* Logo & Header Row */}
+                <div className="flex justify-between items-center w-full z-20 mb-8 min-h-[40px]">
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3, duration: 0.8 }}
+                        className="flex items-center gap-3"
+                    >
+                        <div className="w-8 h-8 border border-luxury-gold transform rotate-45 flex items-center justify-center">
+                            <div className="w-4 h-4 bg-luxury-gold/50" />
+                        </div>
+                        <span className="font-serif font-bold text-xl tracking-widest uppercase text-luxury-charcoal">UrbanPlot</span>
+                    </motion.div>
 
-                {/* Close Button */}
-                <motion.button
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 2 }}
-                    onClick={onClose}
-                    className="absolute top-8 right-8 lg:hidden z-30 text-luxury-charcoal"
-                >
-                    <X size={24} />
-                </motion.button>
+                    {/* Close Button (Mobile) */}
+                    <motion.button
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 2 }}
+                        onClick={onClose}
+                        className="lg:hidden text-luxury-charcoal"
+                    >
+                        <X size={24} />
+                    </motion.button>
+                </div>
 
                 {/* Form Container */}
                 <motion.div
-                    className="w-full max-w-[440px] relative z-10"
+                    className="w-full max-w-[440px] relative z-10 mx-auto my-auto"
                     initial={{ scale: 0.96, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.7, duration: 0.6 }}

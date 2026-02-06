@@ -26,9 +26,20 @@ export default {
             fontFamily: {
                 serif: ['"Playfair Display"', 'serif'],
                 sans: ['"Questrial"', '"Montserrat"', 'sans-serif'],
+                display: ['"Oswald"', 'sans-serif'],
             },
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+            },
+            keyframes: {
+                marquee: {
+                    '0%': { transform: 'translateX(0)' },
+                    '100%': { transform: 'translateX(-50%)' },
+                }
+            },
+            animation: {
+                marquee: 'marquee 50s linear infinite',
+                'spin-slow': 'spin 3s linear infinite',
             }
         },
     },

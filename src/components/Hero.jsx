@@ -1,238 +1,156 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Play, MapPin } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const CAROUSEL_PROPERTIES = [
+const SLIDES = [
     {
         id: 1,
-        title: "Skyline Penthouse",
-        location: "Manhattan, New York",
-        price: "$8,950,000",
-        image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2670&auto=format&fit=crop",
-        specs: "4 Bed • 3 Bath • 4,200 sq ft"
+        image: "/assets/images/hero-view.jpg",
+        title: "Skyline Perspectives",
+        headline: "Turn Your Vision into Exclusive Reality",
+        subtitle: "Experience urban living from a new vantage point."
     },
     {
         id: 2,
-        title: "Ocean View Villa",
-        location: "Malibu, California",
-        price: "$12,500,000",
-        image: "https://images.unsplash.com/photo-1613545325278-f24b0cae1224?q=80&w=2670&auto=format&fit=crop",
-        specs: "5 Bed • 6 Bath • 6,500 sq ft"
+        image: "/assets/images/hero-main.jpg",
+        title: "Architectural Masterpieces",
+        headline: "Crafting Homes That Define Your Legacy",
+        subtitle: "Homes designed to inspire and endure."
     },
     {
         id: 3,
-        title: "Alpine Retreat",
-        location: "Aspen, Colorado",
-        price: "$14,900,000",
-        image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=2670&auto=format&fit=crop",
-        specs: "6 Bed • 7 Bath • 8,100 sq ft"
+        image: "/assets/images/hero-interior.jpg",
+        title: "Refined Interiors",
+        headline: "Curating Spaces of Timeless Elegance",
+        subtitle: "Curated spaces for the modern connoisseur."
     },
     {
         id: 4,
-        title: "Modern Estate",
-        location: "Beverly Hills",
-        price: "$9,500,000",
-        image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2670&auto=format&fit=crop",
-        specs: "4 Bed • 4.5 Bath • 5,200 sq ft"
+        image: "/assets/images/hero-detail.jpg",
+        title: "Exquisite Details",
+        headline: "Elevating Life Through Exquisite Design",
+        subtitle: "Luxury found in every corner and finish."
     }
 ];
 
-const variants = {
-    enter: (direction) => ({
-        x: direction > 0 ? 1000 : -1000,
-        opacity: 0
-    }),
-    center: {
-        zIndex: 1,
-        x: 0,
-        opacity: 1
-    },
-    exit: (direction) => ({
-        zIndex: 0,
-        x: direction < 0 ? 1000 : -1000,
-        opacity: 0.5
-    })
-};
-
 export default function Hero() {
-    const [[page, direction], setPage] = useState([0, 0]);
-    const [isPaused, setIsPaused] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
-    // We only have N slides, so we wrap the index
-    const imageIndex = Math.abs(page % CAROUSEL_PROPERTIES.length);
-    const property = CAROUSEL_PROPERTIES[imageIndex];
-
+    // Auto-advance
     useEffect(() => {
-        if (isPaused) return;
-        const interval = setInterval(() => {
-            paginate(1);
-        }, 6000);
-        return () => clearInterval(interval);
-    }, [isPaused, page]);
+        const timer = setInterval(() => {
+            setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
+        }, 6000); // 6 seconds per slide
+        return () => clearInterval(timer);
+    }, []);
 
-    const paginate = (newDirection) => {
-        setPage([page + newDirection, newDirection]);
-    };
+    const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
+    const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
 
     return (
-        <div className="relative w-full h-screen overflow-hidden bg-[#0D0D0D] text-luxury-cream">
+        <section className="relative w-full h-screen overflow-hidden bg-black text-white">
 
-            {/* Background Ambient Effects */}
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute inset-0 bg-noise opacity-[0.03]" />
-                {/* Radial Glows */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-luxury-gold/5 rounded-full blur-[100px] animate-pulse-slow" />
-                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
-            </div>
+            {/* Background Carousel */}
+            <AnimatePresence mode="popLayout" initial={false}>
+                <motion.div
+                    key={currentIndex}
+                    className="absolute inset-0 w-full h-full"
+                    initial={{ opacity: 0, scale: 1.1 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                >
+                    <img
+                        src={SLIDES[currentIndex].image}
+                        alt={SLIDES[currentIndex].title}
+                        className="w-full h-full object-cover"
+                        loading="eager"
+                    />
+                    {/* Dark Overlay Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+                </motion.div>
+            </AnimatePresence>
 
-            {/* Floating Geometric Elements (Subtle) */}
-            <motion.div
-                className="absolute top-[15%] left-[10%] w-32 h-32 border border-luxury-gold/5 rounded-full"
-                animate={{ rotate: 360, y: [0, 40, 0] }}
-                transition={{ rotate: { duration: 30, repeat: Infinity, ease: "linear" }, y: { duration: 20, repeat: Infinity, ease: "easeInOut" } }}
-            />
-            <motion.div
-                className="absolute bottom-[20%] right-[15%] w-48 h-48 border border-luxury-gold/5 opacity-30 rotate-45"
-                animate={{ rotate: [45, 90, 45], y: [0, -30, 0] }}
-                transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-            />
+            {/* Content Content (Centered) */}
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 md:px-12 text-center">
 
-            {/* Hero Overlay Content - Top */}
-            <div className="absolute top-[120px] left-0 right-0 z-30 text-center px-4">
-                <motion.h1
-                    className="font-sans font-light text-4xl md:text-6xl text-luxury-cream tracking-[0.2em] uppercase drop-shadow-2xl"
-                    initial={{ opacity: 0, y: -20 }}
+                <motion.div
+                    key={`text-${currentIndex}`}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1.2, delay: 0.4 }}
+                    transition={{ duration: 0.8, delay: 0.5 }}
                 >
-                    Discover Extraordinary Living
-                </motion.h1>
-                <motion.p
-                    className="mt-4 font-sans font-light text-luxury-taupe text-sm md:text-lg tracking-[0.15em]"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 1.0 }}
-                >
-                    Curated luxury properties for the discerning few
-                </motion.p>
+                    <p className="font-sans text-luxury-gold uppercase tracking-[0.2em] mb-4 text-sm md:text-base">
+                        {SLIDES[currentIndex].title}
+                    </p>
+                    <h1 className="font-display font-medium text-4xl md:text-6xl lg:text-7xl leading-tight mb-8 drop-shadow-2xl max-w-5xl mx-auto tracking-widest">
+                        {SLIDES[currentIndex].headline}
+                    </h1>
+                    <p className="font-sans text-gray-200 text-lg md:text-xl max-w-2xl mx-auto mb-10 drop-shadow-md">
+                        {SLIDES[currentIndex].subtitle}
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                        <button className="h-14 px-10 rounded-full bg-luxury-gold text-luxury-charcoal font-bold tracking-widest text-sm uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-xl flex items-center gap-2">
+                            Start Creating
+                            <ArrowRight size={16} />
+                        </button>
+                        <button className="h-14 px-10 rounded-full border border-white/30 bg-black/20 backdrop-blur-md text-white font-bold tracking-widest text-sm uppercase hover:bg-white hover:text-black transition-all duration-300">
+                            Explore Gallery
+                        </button>
+                    </div>
+                </motion.div>
+
             </div>
 
-            {/* Main Feature: Centered Carousel */}
-            <div
-                className="absolute inset-0 flex items-center justify-center z-20"
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
-            >
-                <div className="relative w-full max-w-[90vw] md:max-w-[70vw] lg:max-w-[1200px] aspect-[16/9] md:aspect-[2/1] lg:h-[600px] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border border-luxury-glass">
-
-                    <AnimatePresence initial={false} custom={direction}>
-                        <motion.div
-                            key={page}
-                            custom={direction}
-                            variants={variants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            transition={{
-                                x: { type: "spring", stiffness: 300, damping: 30 },
-                                opacity: { duration: 0.5 }
-                            }}
-                            className="absolute inset-0 w-full h-full"
-                        >
-                            <img
-                                src={property.image}
-                                alt={property.title}
-                                className="w-full h-full object-cover"
-                            />
-                            {/* Inner Gradient for readability */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80" />
-
-                            {/* Glassmorphic Info Card - Bottom Left */}
-                            <motion.div
-                                className="absolute bottom-8 left-8 md:bottom-12 md:left-12 max-w-[90%] md:max-w-[420px] p-6 md:p-8 rounded-xl border border-white/10 bg-[#0D0D0D]/60 backdrop-blur-xl shadow-lg"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.6 }}
-                            >
-                                <div className="flex items-start justify-between flex-col md:flex-row gap-4 md:gap-0">
-                                    <div>
-                                        <h3 className="font-serif text-2xl md:text-3xl text-luxury-cream font-light mb-1">{property.title}</h3>
-                                        <div className="flex items-center text-luxury-taupe text-sm tracking-wider mb-4">
-                                            <MapPin size={14} className="mr-2" />
-                                            {property.location}
-                                        </div>
-                                        <div className="text-luxury-cream/70 text-xs uppercase tracking-widest border-t border-white/10 pt-3">
-                                            {property.specs}
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="font-serif text-2xl md:text-3xl text-luxury-gold">{property.price}</div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    </AnimatePresence>
-
-                    {/* Navigation Arrows (Inside Container) */}
-                    <button
-                        className="absolute top-1/2 left-4 md:left-8 -translate-y-1/2 z-30 w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/20 bg-white/5 backdrop-blur-md flex items-center justify-center text-luxury-cream hover:bg-luxury-gold/20 hover:border-luxury-gold/40 hover:scale-110 transition-all duration-300 group"
-                        onClick={() => paginate(-1)}
-                    >
-                        <ChevronLeft className="w-6 h-6 group-hover:text-luxury-gold" />
-                    </button>
-                    <button
-                        className="absolute top-1/2 right-4 md:right-8 -translate-y-1/2 z-30 w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/20 bg-white/5 backdrop-blur-md flex items-center justify-center text-luxury-cream hover:bg-luxury-gold/20 hover:border-luxury-gold/40 hover:scale-110 transition-all duration-300 group"
-                        onClick={() => paginate(1)}
-                    >
-                        <ChevronRight className="w-6 h-6 group-hover:text-luxury-gold" />
-                    </button>
-                </div>
+            {/* Mobile Navigation (Side Arrows) */}
+            <div className="absolute inset-0 z-30 flex items-center justify-between px-4 pointer-events-none md:hidden">
+                <button
+                    onClick={prevSlide}
+                    className="pointer-events-auto w-10 h-10 rounded-full border border-white/20 bg-black/20 backdrop-blur-md flex items-center justify-center text-white"
+                >
+                    <ChevronLeft size={20} />
+                </button>
+                <button
+                    onClick={nextSlide}
+                    className="pointer-events-auto w-10 h-10 rounded-full border border-white/20 bg-black/20 backdrop-blur-md flex items-center justify-center text-white"
+                >
+                    <ChevronRight size={20} />
+                </button>
             </div>
 
-            {/* Pagination & Bottom CTAs */}
-            <div className="absolute bottom-8 left-0 right-0 z-30 flex flex-col items-center">
+            {/* Desktop Navigation Controls (Bottom Bar) */}
+            <div className="absolute bottom-8 md:bottom-12 inset-x-0 z-30 px-4 md:px-12 flex justify-center md:justify-between items-end">
 
-                {/* Pagination Dots */}
-                <div className="flex space-x-3 mb-8">
-                    {CAROUSEL_PROPERTIES.map((_, idx) => (
+                {/* Progress Indicators */}
+                <div className="flex gap-4">
+                    {SLIDES.map((_, idx) => (
                         <button
                             key={idx}
-                            onClick={() => {
-                                const diff = idx - imageIndex;
-                                setPage([page + diff, diff]);
-                            }}
-                            className={`transition-all duration-500 rounded-full border border-white/30 
-                        ${idx === imageIndex ? 'w-8 bg-luxury-gold border-luxury-gold shadow-[0_0_10px_rgba(212,165,116,0.5)]' : 'w-2.5 bg-white/10 hover:bg-white/30'}
-                        h-2.5
-                    `}
+                            onClick={() => setCurrentIndex(idx)}
+                            className={`h-1 transition-all duration-500 rounded-full ${idx === currentIndex ? 'w-16 bg-luxury-gold' : 'w-8 bg-white/30 hover:bg-white/50'
+                                }`}
                         />
                     ))}
                 </div>
 
-                {/* CTA Buttons */}
-                <div className="flex flex-col md:flex-row gap-4 mb-4">
-                    <motion.button
-                        className="w-[200px] h-[54px] bg-gradient-to-br from-luxury-gold to-[#c9a869] rounded-full text-[#0D0D0D] font-sans font-medium uppercase text-sm tracking-[0.15em] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.6 }}
+                {/* Arrows (Desktop Only) */}
+                <div className="hidden md:flex gap-4">
+                    <button
+                        onClick={prevSlide}
+                        className="w-14 h-14 rounded-full border border-white/20 bg-black/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-luxury-gold hover:border-luxury-gold hover:text-black transition-all duration-300 group"
                     >
-                        Explore Collection
-                    </motion.button>
-
-                    <motion.button
-                        className="w-[180px] h-[54px] bg-transparent border border-white/30 rounded-full text-luxury-cream font-sans font-medium uppercase text-sm tracking-[0.15em] hover:bg-white/5 hover:border-luxury-gold hover:text-luxury-gold hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.8 }}
+                        <ChevronLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
+                    </button>
+                    <button
+                        onClick={nextSlide}
+                        className="w-14 h-14 rounded-full border border-white/20 bg-black/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-luxury-gold hover:border-luxury-gold hover:text-black transition-all duration-300 group"
                     >
-                        <Play size={12} fill="currentColor" />
-                        Virtual Tours
-                    </motion.button>
+                        <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
                 </div>
-
             </div>
 
-        </div>
+        </section>
     );
 }
