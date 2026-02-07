@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, Check, X, ArrowRight, AlertCircle, MapPin } from 'lucide-react';
+import { Eye, EyeOff, Check, X, AlertCircle, MapPin } from 'lucide-react';
 import clsx from 'clsx';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 // --- Assets & Constants ---
 const SHOWCASE_IMAGES = [
@@ -31,14 +33,16 @@ const SHOWCASE_IMAGES = [
 
 // --- Sub-components ---
 
-const FloatingInput = ({ label, register, name, type = "text", error, rules }) => {
+const FloatingInput = ({ label, register, name, value, type = "text", error, rules }) => {
     const [focused, setFocused] = useState(false);
-    const [filled, setFilled] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
     // Custom password toggle logic
     const isPassword = type === "password";
     const inputType = isPassword ? (showPassword ? "text" : "password") : type;
+
+    // Check if input has value to keep label floating
+    const isFilled = value && value.length > 0;
 
     return (
         <div className="relative mb-6">
@@ -51,7 +55,7 @@ const FloatingInput = ({ label, register, name, type = "text", error, rules }) =
                 <label
                     className={clsx(
                         "absolute left-4 pointer-events-none transition-all duration-250 ease-out font-medium font-sans",
-                        (focused || filled) ? "text-xs -translate-y-[20px] bg-white px-1 text-luxury-gold" : "text-[15px] translate-y-0 text-gray-500"
+                        (focused || isFilled) ? "text-xs -translate-y-[20px] bg-white px-1 text-luxury-gold" : "text-[15px] translate-y-0 text-gray-500"
                     )}
                 >
                     {label}
@@ -60,11 +64,7 @@ const FloatingInput = ({ label, register, name, type = "text", error, rules }) =
                 <input
                     {...register(name, {
                         ...rules,
-                        onChange: (e) => setFilled(e.target.value.length > 0),
-                        onBlur: (e) => {
-                            setFocused(false);
-                            setFilled(e.target.value.length > 0);
-                        }
+                        onBlur: () => setFocused(false)
                     })}
                     onFocus={() => setFocused(true)}
                     type={inputType}
@@ -73,7 +73,7 @@ const FloatingInput = ({ label, register, name, type = "text", error, rules }) =
 
                 {/* Validation Icons */}
                 <AnimatePresence>
-                    {!error && filled && !isPassword && (
+                    {!error && isFilled && !isPassword && (
                         <motion.div
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1.15, opacity: 1 }}
@@ -178,15 +178,20 @@ const SocialButton = ({ icon, text }) => (
 
 // --- Main Component ---
 
-export default function AuthPage({ onClose }) {
-    const [isLogin, setIsLogin] = useState(true);
+export default function AuthPage({ mode = 'login' }) {
+    const isLogin = mode === 'login';
+    const navigate = useNavigate();
+    const { signIn, signUp } = useAuth();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [authError, setAuthError] = useState('');
     const [activeImage, setActiveImage] = useState(0);
 
     // Form Hooks
     const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm();
     const passwordValue = watch("password");
+    const emailValue = watch("email");
+    const nameValue = watch("name");
 
     // Load saved email
     useEffect(() => {
@@ -205,14 +210,18 @@ export default function AuthPage({ onClose }) {
         return () => clearInterval(timer);
     }, []);
 
-    // Toggle Handler with delay
+    // Toggle Handler
     const toggleMode = () => {
-        reset(); // Reset form fields
-        setIsLogin(!isLogin);
+        navigate(isLogin ? '/signup' : '/login');
+    };
+
+    const onClose = () => {
+        navigate('/');
     };
 
     const onSubmit = async (data) => {
         setLoading(true);
+        setAuthError('');
 
         // Save/Remove Remember Me
         if (data.remember) {
@@ -221,15 +230,25 @@ export default function AuthPage({ onClose }) {
             localStorage.removeItem('urbanplot_remember');
         }
 
-        // Mock API
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setLoading(false);
-        setSuccess(true);
+        try {
+            if (isLogin) {
+                const { error } = await signIn(data.email, data.password);
+                if (error) throw error;
+            } else {
+                const { error } = await signUp(data.email, data.password, { name: data.name });
+                if (error) throw error;
+            }
 
-        // Mock Success -> Redirect
-        setTimeout(() => {
-            onClose();
-        }, 1000);
+            setSuccess(true);
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
+        } catch (err) {
+            console.error("Auth Error:", err);
+            setAuthError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -316,6 +335,7 @@ export default function AuthPage({ onClose }) {
                                     <FloatingInput
                                         name="name"
                                         label="Full Name"
+                                        value={nameValue}
                                         register={register}
                                         rules={{ required: "Name is required" }}
                                         error={errors.name}
@@ -325,6 +345,7 @@ export default function AuthPage({ onClose }) {
                                 <FloatingInput
                                     name="email"
                                     label="Email Address"
+                                    value={emailValue}
                                     type="email"
                                     register={register}
                                     rules={{
@@ -337,6 +358,7 @@ export default function AuthPage({ onClose }) {
                                 <FloatingInput
                                     name="password"
                                     label="Password"
+                                    value={passwordValue}
                                     type="password"
                                     register={register}
                                     rules={{
@@ -416,6 +438,21 @@ export default function AuthPage({ onClose }) {
                                         <SocialButton icon="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" text="Apple" />
                                     </div>
                                 </div>
+
+                                {/* Error Message (General) */}
+                                <AnimatePresence>
+                                    {authError && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="flex items-center mt-4 space-x-1 text-red-500 text-[13px] font-medium font-sans justify-center"
+                                        >
+                                            <AlertCircle size={14} />
+                                            <span>{authError}</span>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
                                 {/* Toggle Link */}
                                 <div className="mt-8 text-center">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -30,34 +30,57 @@ const SectionHeader = ({ title }) => (
 );
 
 export default function Home() {
-    const [showAuth, setShowAuth] = useState(false);
+    const [properties, setProperties] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [visibleNewListed, setVisibleNewListed] = useState(8);
     const [visibleNearby, setVisibleNearby] = useState(8);
 
     const propertyImages = [luxuryVilla1, luxuryVilla2, luxuryVilla3, luxuryVilla4, luxuryVilla5];
 
-    const newListed = Array.from({ length: 20 }).map((_, i) => ({
-        id: `new-${i}`,
-        image: propertyImages[i % 5],
-        price: `$${(1200000 + i * 50000).toLocaleString()}`,
-        title: `Luxury Villa ${i + 1}`,
-        location: 'Beverly Hills, CA',
-        beds: 4 + (i % 3),
-        baths: 3 + (i % 2),
-        sqft: 2500 + i * 100,
-        featured: i % 3 === 0
-    }));
+    useEffect(() => {
+        const fetchProperties = async () => {
+            try {
+                // Fetch properties from Supabase
+                const { data, error } = await import('../lib/supabaseClient').then(module =>
+                    module.supabase.from('properties').select('*').order('created_at', { ascending: false })
+                );
 
-    const nearbyProperties = Array.from({ length: 20 }).map((_, i) => ({
-        id: `nearby-${i}`,
-        image: propertyImages[(i + 2) % 5], // Offset to look different
-        price: `$${(850000 + i * 25000).toLocaleString()}`,
-        title: `Modern Apartment ${i + 1}`,
-        location: 'West Hollywood, CA',
-        beds: 2 + (i % 2),
-        baths: 2,
-        sqft: 1200 + i * 50
-    }));
+                if (error) {
+                    console.error('Error fetching properties:', error);
+                    return;
+                }
+
+                if (data) {
+                    // Map DB fields to UI fields
+                    const mapped = data.map(p => ({
+                        id: p.id,
+                        title: p.property_name,
+                        price: `$${p.price.toLocaleString()}`,
+                        location: p.location,
+                        beds: p.bedrooms,
+                        baths: p.bathrooms,
+                        sqft: p.area_sqft,
+                        image: (p.images && p.images.length > 0) ? p.images[0] : propertyImages[0], // Fallback
+                        featured: p.status.toLowerCase() === 'available',
+                        type: p.property_type,
+                        description: p.description
+                    }));
+                    setProperties(mapped);
+                }
+            } catch (err) {
+                console.error('Unexpected error fetching properties:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProperties();
+    }, []);
+
+    // Derived lists logic: Split 50/50 or just duplicate if not enough? 
+    // We expect 40 properties, so 20/20 works.
+    const newListed = properties.slice(0, Math.ceil(properties.length / 2));
+    const nearbyProperties = properties.slice(Math.ceil(properties.length / 2), properties.length);
 
     const lifestyleTypes = [
         { name: 'Waterfront', count: 128, image: luxuryVilla2 },
@@ -73,7 +96,7 @@ export default function Home() {
 
     return (
         <div className="bg-luxury-cream min-h-screen selection:bg-luxury-gold selection:text-white pb-0">
-            <Navbar onLoginClick={() => setShowAuth(true)} variant="transparent" enableIntro={true} />
+            <Navbar variant="transparent" enableIntro={true} />
             <Hero />
 
             {/* Main Content Area */}
@@ -193,10 +216,7 @@ export default function Home() {
             <Testimonials />
             <Footer />
 
-            {/* Auth Modal */}
-            <AnimatePresence>
-                {showAuth && <AuthPage onClose={() => setShowAuth(false)} />}
-            </AnimatePresence>
+            {/* Auth Modal Removed in favor of dedicated pages */}
         </div>
     );
 }

@@ -8,6 +8,10 @@ import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Properties from './pages/Properties';
+import AddProperty from './pages/AddProperty';
 
 import ScrollToTop from './components/ScrollToTop';
 
@@ -39,6 +43,10 @@ export default function App() {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/properties" element={<Properties />} />
+              <Route path="/add-property" element={<AddProperty />} />
               {/* Fallback for other links demo */}
               <Route path="*" element={<Home />} />
             </Routes>

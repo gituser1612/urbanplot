@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
-import { Search, Heart, User, Menu, X } from 'lucide-react';
+import { Search, Heart, User, Menu, X, LogOut } from 'lucide-react';
 import clsx from 'clsx';
 import { useWishlist } from '../contexts/WishlistContext';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function Navbar({ onLoginClick, variant = 'transparent' }) {
+export default function Navbar({ variant = 'transparent' }) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { scrollY } = useScroll();
     const { wishlist } = useWishlist();
+    const { user, signOut } = useAuth();
+
+    const handleLogout = async () => {
+        await signOut();
+    };
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         setIsScrolled(latest > 50);
@@ -36,18 +42,18 @@ export default function Navbar({ onLoginClick, variant = 'transparent' }) {
     }, [isMobileMenuOpen]);
 
     const navLinks = [
-        { name: 'Buy', href: '#' },
-        { name: 'Rent', href: '#' },
-        { name: 'Sell', href: '#' },
-        { name: 'Featured', href: '#' },
-        { name: 'Agents', href: '#' }
+        { name: 'Buy', path: '/properties' },
+        { name: 'Rent', path: '/properties' },
+        { name: 'Sell', path: '/add-property' },
+        { name: 'Featured', path: '/' },
+        { name: 'Agents', path: '/contact' }
     ];
 
     const mobileLinks = [
-        { name: 'Buy Properties', href: '#' },
-        { name: 'Rentals', href: '#' },
-        { name: 'Sell Your Home', href: '#' },
-        { name: 'Our Agents', href: '#' },
+        { name: 'Buy Properties', href: '/properties' },
+        { name: 'Rentals', href: '/properties' },
+        { name: 'Sell Your Home', href: '/add-property' },
+        { name: 'Our Agents', href: '/contact' },
         { name: 'Journal', href: '#' }
     ];
 
@@ -77,14 +83,14 @@ export default function Navbar({ onLoginClick, variant = 'transparent' }) {
                 {/* CENTER: NAV LINKS (Desktop) */}
                 <div className="hidden lg:flex items-center gap-14">
                     {navLinks.map((link, i) => (
-                        <a
+                        <Link
                             key={link.name}
-                            href={link.href}
+                            to={link.path}
                             className="relative text-[11px] uppercase tracking-[0.27em] text-[rgba(245,245,240,0.6)] hover:text-[#F5F5F0] transition-colors duration-400 font-light font-['Montserrat'] group py-2"
                         >
                             {link.name}
                             <span className="absolute bottom-0 left-0 w-full h-[1px] bg-[#d4a574] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-350 ease-[cubic-bezier(0.4,0,0.2,1)] origin-left mt-2" style={{ top: 'calc(100% + 2px)' }} />
-                        </a>
+                        </Link>
                     ))}
                 </div>
 
@@ -109,22 +115,37 @@ export default function Navbar({ onLoginClick, variant = 'transparent' }) {
                         )}
                     </Link>
 
-                    {/* User Icon (Desktop) */}
-                    <button
-                        onClick={onLoginClick}
-                        className="hidden md:flex w-10 h-10 rounded-full items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] hover:bg-white/5 hover:border hover:border-[#d4a574]/30 hover:scale-105 active:scale-95 transition-all duration-350"
-                        aria-label="Account"
-                    >
-                        <User strokeWidth={1.5} size={20} />
-                    </button>
+                    {/* Auth UI */}
+                    {user ? (
+                        <button
+                            onClick={handleLogout}
+                            className="hidden md:flex w-10 h-10 rounded-full items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] hover:bg-white/5 hover:border hover:border-[#d4a574]/30 hover:scale-105 active:scale-95 transition-all duration-350"
+                            title="Sign Out"
+                        >
+                            <LogOut strokeWidth={1.5} size={20} />
+                        </button>
+                    ) : (
+                        <>
+                            {/* Signup Link (Desktop) */}
+                            <Link
+                                to="/signup"
+                                className="hidden md:flex items-center justify-center px-5 py-2 rounded-full border border-white/20 text-[#F5F5F0] hover:bg-[#d4a574] hover:border-[#d4a574] hover:text-[#0D0D0D] transition-all duration-300 text-xs uppercase tracking-widest font-medium mr-2"
+                            >
+                                Sign Up
+                            </Link>
 
-                    {/* List Property CTA (Desktop) */}
-                    <button
-                        className="hidden lg:block px-8 h-[44px] rounded-full bg-gradient-to-br from-[#d4a574] to-[#c9a869] text-[#0D0D0D] font-medium text-[11px] uppercase tracking-[2px] shadow-[0_6px_20px_rgba(212,165,116,0.25)] border border-[#d4a574]/40 hover:brightness-110 hover:-translate-y-[2px] hover:shadow-[0_8px_28px_rgba(212,165,116,0.35)] active:translate-y-0 transition-all duration-400 group overflow-hidden relative"
-                    >
-                        <span className="relative z-10 group-hover:tracking-[2.5px] transition-all duration-400">List Property</span>
-                        <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500" />
-                    </button>
+                            {/* User Icon (Desktop) */}
+                            <Link
+                                to="/login"
+                                className="hidden md:flex w-10 h-10 rounded-full items-center justify-center text-[rgba(245,245,240,0.6)] hover:text-[#d4a574] hover:bg-white/5 hover:border hover:border-[#d4a574]/30 hover:scale-105 active:scale-95 transition-all duration-350"
+                                aria-label="Account"
+                            >
+                                <User strokeWidth={1.5} size={20} />
+                            </Link>
+                        </>
+                    )}
+
+
 
                     {/* Mobile Menu Toggle */}
                     <button
@@ -191,27 +212,44 @@ export default function Navbar({ onLoginClick, variant = 'transparent' }) {
                                 <div className="w-full h-[1px] bg-[#F5F5F0]/10 my-10" />
 
                                 <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                                    {['My Account', 'Favorites', 'Contact', 'Settings'].map((item, i) => (
-                                        <motion.a
-                                            key={item}
-                                            href="#"
+                                    {[
+                                        ...(user ? [] : [
+                                            { name: 'Login', href: '/login' },
+                                            { name: 'Sign Up', href: '/signup' }
+                                        ]),
+                                        { name: 'Contact', href: '/contact' },
+                                        { name: 'Properties', href: '/properties' }
+                                    ].map((item, i) => (
+                                        <Link
+                                            key={item.name}
+                                            to={item.href}
+                                            onClick={() => setIsMobileMenuOpen(false)}
                                             className="font-sans text-xs uppercase tracking-[0.2em] text-[#F5F5F0]/50 hover:text-[#d4a574] transition-colors flex items-center gap-2"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.4 + (i * 0.05) }}
                                         >
                                             <div className="w-1 h-1 rounded-full bg-[#d4a574]" />
-                                            {item}
-                                        </motion.a>
+                                            {item.name}
+                                        </Link>
                                     ))}
+                                    {user && (
+                                        <button
+                                            onClick={() => {
+                                                handleLogout();
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className="font-sans text-xs uppercase tracking-[0.2em] text-[#F5F5F0]/50 hover:text-[#d4a574] transition-colors flex items-center gap-2 text-left"
+                                        >
+                                            <div className="w-1 h-1 rounded-full bg-[#d4a574]" />
+                                            Log Out
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Drawer Footer */}
                             <div className="p-8 border-t border-[#F5F5F0]/5">
-                                <button className="w-full py-4 border border-[#d4a574]/30 text-[#d4a574] font-sans text-xs uppercase tracking-[0.2em] hover:bg-[#d4a574] hover:text-[#0D0D0D] transition-all duration-300">
+                                <Link to="/add-property" onClick={() => setIsMobileMenuOpen(false)} className="block w-full text-center py-4 border border-[#d4a574]/30 text-[#d4a574] font-sans text-xs uppercase tracking-[0.2em] hover:bg-[#d4a574] hover:text-[#0D0D0D] transition-all duration-300">
                                     List Your Property
-                                </button>
+                                </Link>
                             </div>
                         </motion.div>
                     </>
